@@ -18,27 +18,34 @@ exports.getSurveyById = asyncHandler(async (req, res) => {
 });
 
 exports.createSurvey = asyncHandler(async (req, res) => {
-  const survey = new Survey(req.body);
+  const { title, description, isActive } = req.body;
+  const survey = new Survey({
+    title: title || "Customer Satisfaction",
+    description: description || "Survey about customer experience",
+    isActive: isActive ?? true,
+  });
   await survey.save();
   res.status(201).json({ survey });
 });
 
 exports.updateSurvey = asyncHandler(async (req, res) => {
-  const update = await Survey.findByIdAndUpdate(
-    req.params.id,
-    {
-      ...req.body,
-      updatedAt: Date.now(),
-    },
-    { new: true },
-  );
+  const { id } = req.params;
+  const { title, description, isActive } = req.body;
 
-  if (!update) {
-    const error = new Error("Survey not found");
-    error.status = 404;
-    throw error;
+  const updates = {
+    ...(title !== undefined && { title }),
+    ...(description !== undefined && { description }),
+    ...(isActive !== undefined && { isActive }),
+    updatedAt: Date.now(),
+  };
+
+  const survey = await Survey.findByIdAndUpdate(id, updates, { new: true });
+
+  if (!survey) {
+    throw new Error("Survey not found");
   }
-  res.status(200).json(update);
+
+  res.status(200).json(survey);
 });
 
 exports.deleteSurvey = asyncHandler(async (req, res) => {

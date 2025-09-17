@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 //const expressOasGenerator = require("express-oas-generator");
 const swaggerUi = require("swagger-ui-express");
+const swaggerFile = require("./swagger-output.json");
 
 const mongodb = require("./db/connect");
 const logger = require("./middleware/logger");
@@ -21,6 +22,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);
 
+//Api doc
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
 //Routes Mount
 app.use("/surveys", surveysRouter);
 
@@ -33,6 +37,7 @@ const startServer = async () => {
     await mongodb.initDb();
     app.listen(PORT, () => {
       console.log(`Connected to DB and listening on port ${PORT}`);
+      console.log(`Server running on http://localhost:${PORT}`);
     });
   } catch (err) {
     console.error("Failed to connect to the database:", err);
