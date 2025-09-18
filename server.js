@@ -1,16 +1,16 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-//const expressOasGenerator = require("express-oas-generator");
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require("./swagger-output.json");
 
 const mongodb = require("./db/connect");
 const logger = require("./middleware/logger");
-const notFound = require("./middleware/Notfound");
+const NotFound = require("./middleware/Notfound");
 const errorHandler = require("./middleware/error");
-//const attachCollections = require("./middleware/collections");
 const surveysRouter = require("./routes/surveys");
+const responsesRouter = require("./routes/responses");
+const usersRouter = require("./routes/users");
 
 dotenv.config();
 const app = express();
@@ -27,9 +27,16 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
 //Routes Mount
 app.use("/surveys", surveysRouter);
+app.use("/responses", responsesRouter);
+app.use("/users", usersRouter);
+
+console.log("Routes mounted:");
+console.log("/surveys →", typeof surveysRouter);
+console.log("/responses →", typeof responsesRouter);
+console.log("/users →", typeof usersRouter);
 
 // General error handling middleware
-app.use(notFound);
+app.use(NotFound);
 app.use(errorHandler);
 
 const startServer = async () => {

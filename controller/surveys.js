@@ -6,6 +6,12 @@ exports.getAllSurveys = asyncHandler(async (req, res) => {
   res.status(200).json(list);
 });
 
+exports.getSurveysByUser = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const surveys = await Survey.find({ createdBy: userId });
+  res.status(200).json(surveys);
+});
+
 exports.getSurveyById = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const survey = await Survey.findById(id);
@@ -18,24 +24,32 @@ exports.getSurveyById = asyncHandler(async (req, res) => {
 });
 
 exports.createSurvey = asyncHandler(async (req, res) => {
-  const { title, description, isActive } = req.body;
+  console.log("Incoming body:", req.body);
+  const { title, description, isActive, createdBy, questions } = req.body;
   const survey = new Survey({
-    title: title || "Customer Satisfaction",
-    description: description || "Survey about customer experience",
+    title: title || "Untitled Survey",
+    description: description || "No description provided",
     isActive: isActive ?? true,
+    createdBy,
+    questions,
   });
+
+  console.log("Survey to save:", survey);
+
   await survey.save();
   res.status(201).json({ survey });
 });
 
 exports.updateSurvey = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { title, description, isActive } = req.body;
+  const { title, description, isActive, questions ,createdBy} = req.body;
 
   const updates = {
     ...(title !== undefined && { title }),
     ...(description !== undefined && { description }),
     ...(isActive !== undefined && { isActive }),
+    ...(questions !== undefined && { questions }),
+    ...(createdBy !== undefined && {createdBy}),
     updatedAt: Date.now(),
   };
 

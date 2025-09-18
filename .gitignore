@@ -24,3 +24,5 @@ yarn-debug.log*
 # Git history files
 *.orig
 *.rej
+
+test.rest

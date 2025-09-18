@@ -4,11 +4,31 @@ const surveySchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
+    trim: true,
+    maxlength: 100,
+    minlength: 2,
   },
-  description: String,
+  description: {
+    type: String,
+    required: true,
+    trim: true,
+    maxlength: 500,
+    minlength: 10,
+  },
+  questions: [
+    {
+      type: String,
+      required: true,
+    },
+  ],
   isActive: {
     type: Boolean,
     default: false,
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
   },
   createdAt: {
     type: Date,
