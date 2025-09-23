@@ -8,12 +8,11 @@ exports.getAllSurveys = asyncHandler(async (req, res) => {
 });
 
 exports.getSurveysByUser = asyncHandler(async (req, res) => {
-  const user = await User.findOne({ email: req.user.email });
-  if (!user) {
-    return res.status(404).json({ error: "User not found" });
+  if (!req.user || !req.user.email) {
+    return res.status(404).json({ error: "Not authenticated" });
   }
-
-  const surveys = await Survey.find({ owner: user._id });
+  
+  const surveys = await Survey.find({ createdBy : req.user.email });
   return res.json(surveys);
 });
 
