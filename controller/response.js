@@ -1,7 +1,8 @@
 // controllers/response.js
 const asyncHandler = require("express-async-handler");
 const Survey      = require("../models/Survey");
-const Response    = require("../models/Response");
+const Response = require("../models/Response");
+const User         = require("../models/User");  
 
 
 exports.submitResponse = asyncHandler(async (req, res) => {
