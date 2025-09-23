@@ -18,7 +18,8 @@ const surveyRules = [
       .withMessage("isActive must be a boolean"),
 
 
-  body("createdBy")
+    body("createdBy")
+      .optional()
       .notEmpty()
       .withMessage("createdBy is required")
       .isEmail()
