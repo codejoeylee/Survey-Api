@@ -7,9 +7,13 @@ exports.getAllSurveys = asyncHandler(async (req, res) => {
 });
 
 exports.getSurveysByUser = asyncHandler(async (req, res) => {
-  const { userEmail } = req.params;
-  const surveys = await Survey.find({ createdBy: userEmail });
-  res.status(200).json(surveys);
+  const user = await User.findOne({ email: req.user.email });
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  const surveys = await Survey.find({ owner: user._id });
+  return res.json(surveys);
 });
 
 exports.getSurveyById = asyncHandler(async (req, res) => {
