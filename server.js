@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
@@ -10,30 +11,44 @@ const NotFound = require("./middleware/Notfound");
 const errorHandler = require("./middleware/error");
 const surveysRouter = require("./routes/surveys");
 const responsesRouter = require("./routes/responses");
-const usersRouter = require("./routes/users");
+const authRoutes = require("./routes/auth");
 
 dotenv.config();
+
+delete swaggerFile.paths["/auth/google"];
+delete swaggerFile.paths["/auth/google/callback"];
+
 const app = express();
 const PORT = process.env.PORT || 4040;
 
 //middlewares
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);
 
-//Api doc
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
-
 //Routes Mount
+app.use("/auth", authRoutes);
 app.use("/surveys", surveysRouter);
 app.use("/responses", responsesRouter);
-app.use("/users", usersRouter);
+
+//Api doc
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerFile, {
+    explorer: true,
+    swaggerOptions: {
+      withCredentials: true,
+      persistAuthorization: true,
+    },
+  }),
+);
 
 console.log("Routes mounted:");
 console.log("/surveys →", typeof surveysRouter);
 console.log("/responses →", typeof responsesRouter);
-console.log("/users →", typeof usersRouter);
 
 // General error handling middleware
 app.use(NotFound);

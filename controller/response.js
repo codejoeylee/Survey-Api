@@ -1,49 +1,57 @@
+// controllers/response.js
 const asyncHandler = require("express-async-handler");
-const Response = require("../models/Response");
-const Survey = require("../models/Survey");
-const User = require("../models/User");
+const Survey      = require("../models/Survey");
+const Response    = require("../models/Response");
+
 
 exports.submitResponse = asyncHandler(async (req, res) => {
   const { surveyId, answers, submittedBy } = req.body;
+  const owner = req.user.email;
+
 
   const survey = await Survey.findById(surveyId);
   if (!survey) {
+    res.status(404);
     throw new Error("Survey not found");
   }
 
-  const user = await User.findById(submittedBy);
-  if (!user) {
-    throw new Error("User not found");
-  }
 
-  const response = new Response({ surveyId, answers, submittedBy });
-  await response.save();
+  const response = await Response.create({
+    surveyId,
+    answers,
+    submittedBy: owner
+  });
 
   res.status(201).json(response);
 });
 
 exports.getSurveyResponses = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { userId } = req.query;
+  const owner  = req.user.email;
 
-  const survey = await Survey.findOne({ _id: id, createdBy: userId });
+
+  const survey = await Survey.findOne({ _id: id, createdBy: owner });
   if (!survey) {
+    res.status(404);
     throw new Error("Not authorized or survey not found");
   }
+
 
   const responses = await Response.find({ surveyId: id });
   res.status(200).json(responses);
 });
 
 exports.getUserSurveyResponses = asyncHandler(async (req, res) => {
-  const { userId, surveyId } = req.params;
+  const { surveyId } = req.params;
+  const owner        = req.user.email;
 
   const responses = await Response.find({
     surveyId,
-    submittedBy: userId,
+    submittedBy: owner
   });
 
   res.status(200).json(responses);
 });
 
-console.log("Controller loaded");
+console.log("Response controller loaded");
+
