@@ -98,7 +98,7 @@ exports.deleteSurvey = asyncHandler(async (req, res) => {
     res.status(403);
     throw new Error("Forbidden: not your survey");
   }
-  await survey.remove();
+  await Survey.deleteOne({ _id: id });
   res.status(200).json({ message: "Survey deleted" });
 });
 
